@@ -1,0 +1,30 @@
+{
+  "name": "minesweeper-game",
+  "version": "1.0.0",
+  "description": "Full-stack Minesweeper game with React frontend and NestJS backend",
+  "scripts": {
+    "setup": "./quick-start.sh",
+    "start:backend": "cd minesweeper-be && npm run start:dev",
+    "start:frontend": "cd minesweeper-fe && npm run dev",
+    "build:backend": "cd minesweeper-be && npm run build",
+    "build:frontend": "cd minesweeper-fe && npm run build",
+    "db:start": "cd minesweeper-be && docker-compose up -d",
+    "db:stop": "cd minesweeper-be && docker-compose down",
+    "db:reset": "cd minesweeper-be && docker-compose down -v && docker-compose up -d && npx prisma migrate dev",
+    "db:studio": "cd minesweeper-be && npx prisma studio"
+  },
+  "keywords": [
+    "minesweeper",
+    "game",
+    "react",
+    "nestjs",
+    "typescript",
+    "prisma",
+    "postgresql"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

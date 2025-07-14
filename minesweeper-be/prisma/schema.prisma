@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model GameResult {
+  id              String   @id @default(cuid())
+  playerInitials  String   @db.VarChar(3)
+  completionTime  Int      // Time in seconds
+  gameDate        DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("game_results")
+}
+
+model GameSession {
+  id            String   @id @default(cuid())
+  playerInitials String? @db.VarChar(3)
+  board         Json     // Store the board state as JSON
+  gameState     String   // "ready", "playing", "won", "lost"
+  timer         Int      @default(0)
+  flaggedCells  Int      @default(0)
+  firstClick    Boolean  @default(true)
+  difficulty    String   // "easy", "medium", "hard"
+  rows          Int
+  cols          Int
+  mines         Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("game_sessions")
+}
