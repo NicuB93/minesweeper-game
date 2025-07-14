@@ -361,6 +361,10 @@ npx prisma migrate reset
 npx prisma generate
 ```
 
+## AI Helper Tools
+
+- GitHub Copilot for code suggestions
+
 ## 📝 License
 
 This project is licensed under the MIT License.
