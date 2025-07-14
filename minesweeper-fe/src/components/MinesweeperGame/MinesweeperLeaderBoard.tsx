@@ -1,4 +1,5 @@
 import { useLeaderBoard } from "../../hooks/api/useLeaderBoard";
+import { DataTable, type Column } from "../ui/data-table";
 
 const formatTime = (seconds: number): string => {
   const minutes = Math.floor(seconds / 60);
@@ -21,6 +22,13 @@ interface MinesweeperLeaderBoardProps {
   limit?: number;
 }
 
+interface LeaderboardEntry {
+  id: string;
+  playerInitials: string;
+  completionTime: number;
+  gameDate: string;
+}
+
 export function MinesweeperLeaderBoard({
   limit = 10,
 }: MinesweeperLeaderBoardProps) {
@@ -31,6 +39,73 @@ export function MinesweeperLeaderBoard({
   } = useLeaderBoard({
     variables: { limit },
   });
+
+  const columns: Column<LeaderboardEntry>[] = [
+    {
+      key: "id",
+      header: "Rank",
+      headerClassName: "text-left font-semibold text-muted-foreground",
+      render: (_, __, index) => {
+        const rankEmoji =
+          index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "";
+
+        return (
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-sm text-muted-foreground min-w-[20px]">
+              #{index + 1}
+            </span>
+            {rankEmoji && <span className="text-lg">{rankEmoji}</span>}
+          </div>
+        );
+      },
+    },
+    {
+      key: "playerInitials",
+      header: "Player",
+      headerClassName: "text-left font-semibold text-muted-foreground",
+      render: (value, _, index) => {
+        const isTopThree = index < 3;
+        return (
+          <span
+            className={`font-bold tracking-wider ${
+              isTopThree ? "text-primary" : ""
+            }`}
+          >
+            {value}
+          </span>
+        );
+      },
+    },
+    {
+      key: "completionTime",
+      header: "Time",
+      headerClassName: "text-right font-semibold text-muted-foreground",
+      className: "text-right",
+      render: (value, _, index) => {
+        const isTopThree = index < 3;
+        return (
+          <span
+            className={`font-mono text-sm ${
+              isTopThree ? "font-bold text-primary" : "text-muted-foreground"
+            }`}
+          >
+            {formatTime(value as number)}
+          </span>
+        );
+      },
+    },
+    {
+      key: "gameDate",
+      header: "Date",
+      headerClassName: "text-right font-semibold text-muted-foreground",
+      className: "text-right",
+      render: (value) => (
+        <span className="text-xs text-muted-foreground">
+          {formatDate(value as string)}
+        </span>
+      ),
+    },
+  ];
 
   if (isLoading) {
     return (
@@ -84,84 +159,12 @@ export function MinesweeperLeaderBoard({
       <div className="bg-card border rounded-lg p-6">
         <h2 className="text-2xl font-bold text-center mb-6">🏆 Leaderboard</h2>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-3 px-2 font-semibold text-muted-foreground">
-                  Rank
-                </th>
-                <th className="text-left py-3 px-2 font-semibold text-muted-foreground">
-                  Player
-                </th>
-                <th className="text-right py-3 px-2 font-semibold text-muted-foreground">
-                  Time
-                </th>
-                <th className="text-right py-3 px-2 font-semibold text-muted-foreground">
-                  Date
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {leaderboard.map((entry, index) => {
-                const isTopThree = index < 3;
-                const rankEmoji =
-                  index === 0
-                    ? "🥇"
-                    : index === 1
-                    ? "🥈"
-                    : index === 2
-                    ? "🥉"
-                    : "";
-
-                return (
-                  <tr
-                    key={entry.id}
-                    className={`border-b last:border-b-0 hover:bg-muted/50 transition-colors ${
-                      isTopThree ? "bg-muted/20" : ""
-                    }`}
-                  >
-                    <td className="py-3 px-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm text-muted-foreground min-w-[20px]">
-                          #{index + 1}
-                        </span>
-                        {rankEmoji && (
-                          <span className="text-lg">{rankEmoji}</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="py-3 px-2">
-                      <span
-                        className={`font-bold tracking-wider ${
-                          isTopThree ? "text-primary" : ""
-                        }`}
-                      >
-                        {entry.playerInitials}
-                      </span>
-                    </td>
-                    <td className="py-3 px-2 text-right">
-                      <span
-                        className={`font-mono text-sm ${
-                          isTopThree
-                            ? "font-bold text-primary"
-                            : "text-muted-foreground"
-                        }`}
-                      >
-                        {formatTime(entry.completionTime)}
-                      </span>
-                    </td>
-                    <td className="py-3 px-2 text-right">
-                      <span className="text-xs text-muted-foreground">
-                        {formatDate(entry.gameDate)}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          data={leaderboard}
+          columns={columns}
+          getRowKey={(entry) => entry.id}
+          rowClassName={(_, index) => (index < 3 ? "bg-muted/20" : "")}
+        />
 
         {leaderboard.length >= limit && (
           <div className="text-center mt-4 text-sm text-muted-foreground">
